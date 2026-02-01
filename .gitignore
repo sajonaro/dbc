@@ -1,0 +1,111 @@
+# Zig build artifacts
+zig-out/
+zig-cache/
+.zig-cache/
+
+# Build outputs
+*.o
+*.so
+*.dylib
+*.dll
+*.exe
+*.a
+*.lib
+
+# Debug symbols
+*.dSYM/
+*.pdb
+
+# IDE / Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Local configuration
+.env
+.env.local
+config.local.toml
+
+# Database files (test databases)
+*.db
+*.sqlite
+*.sqlite3
+test_*.db
+
+# Logs
+*.log
+logs/
+
+# Coverage
+coverage/
+*.gcov
+*.gcda
+*.gcno
+
+# Documentation build
+docs/_build/
+docs/.doctrees/
+
+# OS specific
+Thumbs.db
+.Spotlight-V100
+.Trashes
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Backup files
+*.bak
+*.backup
+*~
+
+# Core dumps
+core
+core.*
+
+# Credentials (never commit these!)
+*.key
+*.pem
+*.p12
+secrets/
+credentials/
+
+# Local development
+.local/
+scratch/
+
+# Package manager
+node_modules/
+.npm/
+.yarn/
+
+# Python (if used for tooling)
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+venv/
+env/
+ENV/
+
+# Rust (if mixed with Rust tooling)
+target/
+Cargo.lock
+
+# macOS
+.AppleDouble
+.LSOverride
+
+# Windows
+desktop.ini
+ehthumbs.db
+$RECYCLE.BIN/
+
+# Linux
+.directory
+.Trash-*
