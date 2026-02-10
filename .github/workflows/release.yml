@@ -37,7 +37,10 @@ jobs:
       
       - name: Install dependencies (macOS)
         if: matrix.os == 'macos-latest'
-        run: brew install ncurses postgresql
+        run: |
+          brew install ncurses postgresql
+          echo "LIBRARY_PATH=$(brew --prefix)/lib:$(brew --prefix postgresql)/lib" >> $GITHUB_ENV
+          echo "CPATH=$(brew --prefix)/include:$(brew --prefix postgresql)/include" >> $GITHUB_ENV
       
       - name: Build
         run: |
