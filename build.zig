@@ -29,15 +29,15 @@ pub fn build(b: *std.Build) void {
     // Add library search paths for macOS Homebrew
     if (target.result.os.tag == .macos) {
         // Common Homebrew paths for Apple Silicon and Intel Macs
-        exe.addLibraryPath(b.path("/opt/homebrew/lib")); // Apple Silicon
-        exe.addLibraryPath(b.path("/opt/homebrew/opt/postgresql/lib")); // Apple Silicon PostgreSQL
-        exe.addLibraryPath(b.path("/usr/local/lib")); // Intel Mac
-        exe.addLibraryPath(b.path("/usr/local/opt/postgresql/lib")); // Intel Mac PostgreSQL
+        exe.addLibraryPath(.{ .cwd_relative = "/opt/homebrew/lib" }); // Apple Silicon
+        exe.addLibraryPath(.{ .cwd_relative = "/opt/homebrew/opt/postgresql/lib" }); // Apple Silicon PostgreSQL
+        exe.addLibraryPath(.{ .cwd_relative = "/usr/local/lib" }); // Intel Mac
+        exe.addLibraryPath(.{ .cwd_relative = "/usr/local/opt/postgresql/lib" }); // Intel Mac PostgreSQL
 
-        exe.addIncludePath(b.path("/opt/homebrew/include")); // Apple Silicon
-        exe.addIncludePath(b.path("/opt/homebrew/opt/postgresql/include")); // Apple Silicon PostgreSQL
-        exe.addIncludePath(b.path("/usr/local/include")); // Intel Mac
-        exe.addIncludePath(b.path("/usr/local/opt/postgresql/include")); // Intel Mac PostgreSQL
+        exe.addIncludePath(.{ .cwd_relative = "/opt/homebrew/include" }); // Apple Silicon
+        exe.addIncludePath(.{ .cwd_relative = "/opt/homebrew/opt/postgresql/include" }); // Apple Silicon PostgreSQL
+        exe.addIncludePath(.{ .cwd_relative = "/usr/local/include" }); // Intel Mac
+        exe.addIncludePath(.{ .cwd_relative = "/usr/local/opt/postgresql/include" }); // Intel Mac PostgreSQL
     }
 
     b.installArtifact(exe);
