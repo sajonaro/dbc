@@ -40,7 +40,14 @@ jobs:
       
       - name: Install dependencies (macOS)
         if: matrix.os == 'macos-latest'
-        run: brew install ncurses postgresql
+        run: |
+          brew install ncurses postgresql
+          # Link PostgreSQL libraries to standard Homebrew lib directory
+          PG_PREFIX=$(brew --prefix postgresql)
+          ln -sf $PG_PREFIX/lib/*.dylib /opt/homebrew/lib/ || true
+          ln -sf $PG_PREFIX/lib/*.a /opt/homebrew/lib/ || true
+          # Verify libpq is accessible
+          ls -la /opt/homebrew/lib/libpq* || echo "Warning: libpq not found"
       
       - name: Build
         run: zig build -Doptimize=ReleaseSafe
