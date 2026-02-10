@@ -138,17 +138,17 @@ brew install ncurses postgresql
 
 **Direct install from GitHub (fastest):**
 ```bash
-curl -sSL https://raw.githubusercontent.com/sajonaro/dbc/main/install-binary.sh | bash
+curl -sSL https://raw.githubusercontent.com/sajonaro/dbc/master/install-binary.sh | bash
 ```
 
 **With custom installation prefix:**
 ```bash
-curl -sSL https://raw.githubusercontent.com/sajonaro/dbc/main/install-binary.sh | PREFIX=/usr/local bash
+curl -sSL https://raw.githubusercontent.com/sajonaro/dbc/master/install-binary.sh | PREFIX=/usr/local bash
 ```
 
 **Specific version:**
 ```bash
-curl -sSL https://raw.githubusercontent.com/sajonaro/dbc/main/install-binary.sh | VERSION=v0.1.0 bash
+curl -sSL https://raw.githubusercontent.com/sajonaro/dbc/master/install-binary.sh | VERSION=v0.1.0 bash
 ```
 
 **Supported platforms:**
@@ -158,7 +158,7 @@ curl -sSL https://raw.githubusercontent.com/sajonaro/dbc/main/install-binary.sh 
 
 **Using install script:**
 ```bash
-curl -sSL https://raw.githubusercontent.com/sajonaro/dbc/main/install.sh | bash
+curl -sSL https://raw.githubusercontent.com/sajonaro/dbc/master/install.sh | bash
 ```
 
 **Or clone and build:**
