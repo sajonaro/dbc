@@ -10,20 +10,7 @@ permissions:
 
 jobs:
   build:
-    strategy:
-      matrix:
-        include:
-          - os: ubuntu-latest
-            target: x86_64-linux
-            artifact: dbc-linux-x86_64
-          - os: macos-latest
-            target: x86_64-macos
-            artifact: dbc-macos-x86_64
-          - os: macos-latest
-            target: aarch64-macos
-            artifact: dbc-macos-aarch64
-    
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
     
     steps:
       - name: Checkout code
@@ -34,20 +21,8 @@ jobs:
         with:
           version: 0.15.2
       
-      - name: Install dependencies (Ubuntu)
-        if: matrix.os == 'ubuntu-latest'
+      - name: Install dependencies
         run: sudo apt-get update && sudo apt-get install -y libncursesw5-dev libpq-dev
-      
-      - name: Install dependencies (macOS)
-        if: matrix.os == 'macos-latest'
-        run: |
-          brew install ncurses postgresql
-          # Link PostgreSQL libraries to standard Homebrew lib directory
-          PG_PREFIX=$(brew --prefix postgresql)
-          ln -sf $PG_PREFIX/lib/*.dylib /opt/homebrew/lib/ || true
-          ln -sf $PG_PREFIX/lib/*.a /opt/homebrew/lib/ || true
-          # Verify libpq is accessible
-          ls -la /opt/homebrew/lib/libpq* || echo "Warning: libpq not found"
       
       - name: Build
         run: zig build -Doptimize=ReleaseSafe
@@ -57,12 +32,12 @@ jobs:
           mkdir -p release
           cp zig-out/bin/dbc release/
           cd release
-          tar czf ../${{ matrix.artifact }}.tar.gz dbc
+          tar czf ../dbc-linux-x86_64.tar.gz dbc
           cd ..
       
       - name: Upload Release Asset
         uses: softprops/action-gh-release@v1
         with:
-          files: ${{ matrix.artifact }}.tar.gz
+          files: dbc-linux-x86_64.tar.gz
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -14,13 +14,6 @@ detect_platform() {
                 *) echo "unsupported" ;;
             esac
             ;;
-        Darwin*)
-            case "$(uname -m)" in
-                x86_64) echo "macos-x86_64" ;;
-                arm64) echo "macos-aarch64" ;;
-                *) echo "unsupported" ;;
-            esac
-            ;;
         *)
             echo "unsupported"
             ;;
@@ -36,8 +29,6 @@ install_prebuilt() {
         echo ""
         echo "Supported platforms:"
         echo "  - Linux x86_64"
-        echo "  - macOS x86_64 (Intel)"
-        echo "  - macOS aarch64 (Apple Silicon)"
         echo ""
         echo "Please build from source using install.sh instead"
         exit 1

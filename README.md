@@ -153,8 +153,6 @@ curl -sSL https://raw.githubusercontent.com/sajonaro/dbc/main/install-binary.sh 
 
 **Supported platforms:**
 - Linux x86_64
-- macOS x86_64 (Intel)
-- macOS aarch64 (Apple Silicon)
 
 ### Method 2: Build from Source
 
