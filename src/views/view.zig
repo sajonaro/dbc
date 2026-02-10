@@ -8,5 +8,5 @@ pub const RenderContext = struct {
     theme: *const theme.Theme,
 };
 
-/// All views follow this pattern:
-/// fn render(ctx: RenderContext, win: *ui.Window) void
+// Note: All views follow this pattern:
+// fn render(ctx: RenderContext, win: *ui.Window) void

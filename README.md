@@ -10,6 +10,8 @@ This project follows a clean **Model-View-Action** architecture pattern with uni
 Events → Actions → State → Views → Screen
 ```
 
+See [`idea.md`](idea.md) for detailed architecture documentation
+
 ### Core Principles
 
 1. **State** is the single source of truth (in `model.zig`)
@@ -82,26 +84,6 @@ dbc/
     └── view_tests.zig
 ```
 
-## Current Status
-
-**Phase: Skeleton / Structure**
-
-The project structure is now in place with:
-
-- ✅ Complete folder structure
-- ✅ Model layer (state definitions)
-- ✅ Events and async infrastructure
-- ✅ Theme system
-- ✅ Placeholder files for all components
-
-**Next Steps:**
-
-1. Implement ncurses UI abstractions (`ui/ui.zig`, `ui/input.zig`)
-2. Implement basic views (tree, editor, results)
-3. Implement SQLite driver (simplest to start with)
-4. Wire up event handling and rendering
-5. Test with a local SQLite database
-
 ## Key Bindings (Planned)
 
 ### Global
@@ -163,20 +145,4 @@ zig build test
 - ODBC drivers (for MSSQL)
 - MariaDB client library
 
-## License
 
-[To be determined]
-
-## Contributing
-
-[To be determined]
-
-## References
-
-See `idea.md` for detailed architecture documentation, including:
-- Complete architecture diagrams
-- State management patterns
-- View rendering approach
-- Database driver implementation examples
-- Implementation phases
-- Design decisions and rationale

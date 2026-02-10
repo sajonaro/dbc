@@ -1,6 +1,6 @@
 const std = @import("std");
 const model = @import("model.zig");
-const db = @import("db/db.zig");
+const db_types = @import("db/types.zig");
 
 pub const Event = union(enum) {
     // User input
@@ -9,12 +9,37 @@ pub const Event = union(enum) {
     resize: Size,
 
     // Async completions
-    query_complete: db.QueryResult,
-    connect_complete: db.ConnectResult,
-    metadata_loaded: db.MetadataResult,
+    query_complete: QueryCompleteEvent,
+    query_error: QueryErrorEvent,
+    connect_complete: ConnectCompleteEvent,
+    metadata_loaded: MetadataLoadedEvent,
 
     // Timers
     tick,
+};
+
+pub const QueryCompleteEvent = struct {
+    columns: []db_types.Column,
+    rows: [][]?db_types.Cell,
+    time_ms: u64,
+    affected: ?u64,
+};
+
+pub const QueryErrorEvent = struct {
+    message: []const u8,
+};
+
+pub const ConnectCompleteEvent = struct {
+    success: bool,
+    error_message: ?[]const u8,
+};
+
+pub const MetadataLoadedEvent = struct {
+    kind: enum { databases, schemas, tables, columns },
+    databases: ?[]db_types.Database,
+    schemas: ?[]db_types.Schema,
+    tables: ?[]db_types.Table,
+    columns: ?[]db_types.Column,
 };
 
 pub const KeyEvent = struct {

@@ -36,6 +36,7 @@ pub const Theme = struct {
     modal_bg: Style,
     modal_border: Style,
     modal_overlay: Style,
+    input_focused: Style,
 
     // Buttons
     button: Style,
@@ -91,7 +92,7 @@ pub const dark = Theme{
 
     .status_bar = .{ .fg = .black, .bg = .white },
     .status_loading = .{ .fg = .black, .bg = .yellow },
-    .status_error = .{ .fg = .white, .bg = .red },
+    .status_error = .{ .fg = .black, .bg = .yellow },
     .status_muted = .{ .fg = .bright_black, .bg = .white },
 
     .header = .{ .fg = .cyan, .bg = .default, .bold = true },
@@ -109,6 +110,7 @@ pub const dark = Theme{
     .modal_bg = .{ .fg = .white, .bg = .black },
     .modal_border = .{ .fg = .cyan, .bg = .black },
     .modal_overlay = .{ .fg = .default, .bg = .default },
+    .input_focused = .{ .fg = .black, .bg = .cyan },
 
     .button = .{ .fg = .white, .bg = .bright_black },
     .button_primary = .{ .fg = .black, .bg = .cyan },
@@ -132,7 +134,7 @@ pub const light = Theme{
 
     .status_bar = .{ .fg = .white, .bg = .black },
     .status_loading = .{ .fg = .black, .bg = .yellow },
-    .status_error = .{ .fg = .white, .bg = .red },
+    .status_error = .{ .fg = .black, .bg = .yellow },
     .status_muted = .{ .fg = .bright_black, .bg = .black },
 
     .header = .{ .fg = .blue, .bg = .default, .bold = true },
@@ -150,6 +152,7 @@ pub const light = Theme{
     .modal_bg = .{ .fg = .black, .bg = .white },
     .modal_border = .{ .fg = .blue, .bg = .white },
     .modal_overlay = .{ .fg = .default, .bg = .default },
+    .input_focused = .{ .fg = .white, .bg = .blue },
 
     .button = .{ .fg = .black, .bg = .bright_white },
     .button_primary = .{ .fg = .white, .bg = .blue },

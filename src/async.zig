@@ -9,19 +9,19 @@ pub const AsyncQueue = struct {
     pub fn init(allocator: std.mem.Allocator) AsyncQueue {
         return .{
             .mutex = .{},
-            .events = std.ArrayList(events.Event).init(allocator),
+            .events = .empty,
             .allocator = allocator,
         };
     }
 
     pub fn deinit(self: *AsyncQueue) void {
-        self.events.deinit();
+        self.events.deinit(self.allocator);
     }
 
     pub fn push(self: *AsyncQueue, event: events.Event) void {
         self.mutex.lock();
         defer self.mutex.unlock();
-        self.events.append(event) catch {};
+        self.events.append(self.allocator, event) catch {};
     }
 
     pub fn drain(self: *AsyncQueue) []events.Event {
@@ -30,7 +30,7 @@ pub const AsyncQueue = struct {
 
         if (self.events.items.len == 0) return &.{};
 
-        const items = self.events.toOwnedSlice() catch return &.{};
+        const items = self.events.toOwnedSlice(self.allocator) catch return &.{};
         return items;
     }
 };

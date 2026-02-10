@@ -31,15 +31,15 @@ pub const NodeKind = enum {
 
     pub fn icon(self: NodeKind) []const u8 {
         return switch (self) {
-            .connection => "⊡",
-            .database => "⊟",
-            .schema => "◫",
-            .table_folder => "▤",
-            .table => "▦",
-            .view => "◱",
-            .column => "│",
-            .index => "⇅",
-            .function => "ƒ",
+            .connection => "[C]",
+            .database => "[D]",
+            .schema => "[S]",
+            .table_folder => "[F]",
+            .table => "[T]",
+            .view => "[V]",
+            .column => "[c]",
+            .index => "[i]",
+            .function => "[f]",
         };
     }
 };

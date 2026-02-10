@@ -1,7 +1,7 @@
 const std = @import("std");
 const tree = @import("model/tree.zig");
 const editor = @import("model/editor.zig");
-const results = @import("model/results.zig");
+pub const results = @import("model/results.zig");
 const modal = @import("model/modal.zig");
 
 pub const TreeState = tree.TreeState;
@@ -28,6 +28,7 @@ pub const State = struct {
     // Connections
     connections: std.ArrayList(Connection),
     active_connection: ?usize,
+    db_connection: ?*db.Connection,
 
     // Component states
     tree: TreeState,
@@ -56,7 +57,7 @@ pub const Connection = struct {
     database: []const u8,
     user: []const u8,
     connected: bool,
-    handle: ?*anyopaque,
+    handle: ?*db.Connection,
 };
 
 pub const DbDriver = enum {
@@ -65,6 +66,8 @@ pub const DbDriver = enum {
     sqlite,
     mariadb,
 };
+
+const db = @import("db/db.zig");
 
 pub const Focus = enum {
     tree,
@@ -107,10 +110,6 @@ pub const ErrorSource = enum {
     internal,
 };
 
-pub const Theme = struct {
-    // Placeholder - will be defined in theme.zig
-};
-
-pub const AsyncQueue = struct {
-    // Placeholder - will be defined in async.zig
-};
+// Import theme and async types
+pub const Theme = @import("theme.zig").Theme;
+pub const AsyncQueue = @import("async.zig").AsyncQueue;

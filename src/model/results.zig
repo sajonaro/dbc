@@ -1,8 +1,9 @@
 const std = @import("std");
+const db_types = @import("../db/types.zig");
 
 pub const ResultsState = struct {
-    columns: []Column,
-    rows: [][]?Cell,
+    columns: []ColumnDisplay,
+    rows: [][]?db_types.Cell,
 
     // Navigation
     selected_row: usize,
@@ -16,14 +17,21 @@ pub const ResultsState = struct {
     affected_rows: ?u64,
 };
 
-pub const Column = struct {
+// ColumnDisplay extends db_types.Column with UI-specific fields
+pub const ColumnDisplay = struct {
     name: []const u8,
     data_type: []const u8,
-    nullable: bool,
     width: usize,
+
+    pub fn fromDbColumn(col: db_types.Column) ColumnDisplay {
+        return ColumnDisplay{
+            .name = col.name,
+            .data_type = col.data_type,
+            .width = @max(col.name.len, 10), // Minimum width of 10
+        };
+    }
 };
 
-pub const Cell = struct {
-    value: []const u8,
-    is_null: bool,
-};
+// Re-export Cell type from db_types for convenience
+pub const Cell = db_types.Cell;
+pub const Column = db_types.Column;
