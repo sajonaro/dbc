@@ -1,0 +1,59 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            target: x86_64-linux
+            artifact: dbc-linux-x86_64
+          - os: macos-latest
+            target: x86_64-macos
+            artifact: dbc-macos-x86_64
+          - os: macos-latest
+            target: aarch64-macos
+            artifact: dbc-macos-aarch64
+    
+    runs-on: ${{ matrix.os }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Zig
+        uses: goto-bus-stop/setup-zig@v2
+        with:
+          version: 0.15.2
+      
+      - name: Install dependencies (Ubuntu)
+        if: matrix.os == 'ubuntu-latest'
+        run: sudo apt-get update && sudo apt-get install -y libncursesw5-dev libpq-dev
+      
+      - name: Install dependencies (macOS)
+        if: matrix.os == 'macos-latest'
+        run: brew install ncurses postgresql
+      
+      - name: Build
+        run: |
+          zig build -Doptimize=ReleaseSafe
+      
+      - name: Package binary
+        run: |
+          mkdir -p release
+          cp zig-out/bin/dbc release/
+          cd release
+          tar czf ../${{ matrix.artifact }}.tar.gz dbc
+          cd ..
+      
+      - name: Upload Release Asset
+        uses: softprops/action-gh-release@v1
+        with:
+          files: ${{ matrix.artifact }}.tar.gz
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

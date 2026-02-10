@@ -134,33 +134,44 @@ sudo apt install libncursesw5-dev libpq-dev
 brew install ncurses postgresql
 ```
 
-### Method 1: Using the Install Script (Recommended)
+### Method 1: Pre-built Binary (Recommended - No Build Required)
 
-**Direct install from GitHub (no git clone needed):**
+**Direct install from GitHub (fastest):**
 ```bash
-curl -sSL https://raw.githubusercontent.com/sajonaro/dbc/main/install.sh | bash
-```
-
-**Or clone and install:**
-```bash
-git clone https://github.com/sajonaro/dbc.git && cd dbc && ./install.sh
+curl -sSL https://raw.githubusercontent.com/sajonaro/dbc/main/install-binary.sh | bash
 ```
 
 **With custom installation prefix:**
 ```bash
-curl -sSL https://raw.githubusercontent.com/sajonaro/dbc/main/install.sh | PREFIX=/usr/local bash
+curl -sSL https://raw.githubusercontent.com/sajonaro/dbc/main/install-binary.sh | PREFIX=/usr/local bash
 ```
 
-### Method 2: Direct Installation with Zig
+**Specific version:**
+```bash
+curl -sSL https://raw.githubusercontent.com/sajonaro/dbc/main/install-binary.sh | VERSION=v0.1.0 bash
+```
+
+**Supported platforms:**
+- Linux x86_64
+- macOS x86_64 (Intel)
+- macOS aarch64 (Apple Silicon)
+
+### Method 2: Build from Source
+
+**Using install script:**
+```bash
+curl -sSL https://raw.githubusercontent.com/sajonaro/dbc/main/install.sh | bash
+```
+
+**Or clone and build:**
+```bash
+git clone https://github.com/sajonaro/dbc.git && cd dbc && ./install.sh
+```
+
+### Method 3: Direct Installation with Zig
 
 ```bash
 git clone https://github.com/sajonaro/dbc.git && cd dbc && zig build -Doptimize=ReleaseSafe --prefix ~/.local && echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc && source ~/.bashrc
-```
-
-### Method 3: One-Liner Installation (Clone, Build, Install, Cleanup)
-
-```bash
-git clone https://github.com/sajonaro/dbc.git && cd dbc && zig build -Doptimize=ReleaseSafe --prefix ~/.local && cd .. && rm -rf dbc
 ```
 
 ### Method 4: As a Zig Dependency
