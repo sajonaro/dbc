@@ -112,6 +112,63 @@ dbc/
 - `Ctrl+C` - Copy cell
 - `Ctrl+E` - Export results
 
+## Installation
+
+### Prerequisites
+
+Before installing dbc, ensure you have the following dependencies installed:
+
+**Required:**
+- Zig 0.15.2 or later
+- ncursesw (wide character support)
+- panel library
+- libpq (PostgreSQL client library)
+
+**On Ubuntu/Debian:**
+```bash
+sudo apt install libncursesw5-dev libpq-dev
+```
+
+**On macOS:**
+```bash
+brew install ncurses postgresql
+```
+
+### Method 1: Using the Install Script (Recommended)
+
+**Direct install from GitHub (no git clone needed):**
+```bash
+curl -sSL https://raw.githubusercontent.com/sajonaro/dbc/main/install.sh | bash
+```
+
+**Or clone and install:**
+```bash
+git clone https://github.com/sajonaro/dbc.git && cd dbc && ./install.sh
+```
+
+**With custom installation prefix:**
+```bash
+curl -sSL https://raw.githubusercontent.com/sajonaro/dbc/main/install.sh | PREFIX=/usr/local bash
+```
+
+### Method 2: Direct Installation with Zig
+
+```bash
+git clone https://github.com/sajonaro/dbc.git && cd dbc && zig build -Doptimize=ReleaseSafe --prefix ~/.local && echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc && source ~/.bashrc
+```
+
+### Method 3: One-Liner Installation (Clone, Build, Install, Cleanup)
+
+```bash
+git clone https://github.com/sajonaro/dbc.git && cd dbc && zig build -Doptimize=ReleaseSafe --prefix ~/.local && cd .. && rm -rf dbc
+```
+
+### Method 4: As a Zig Dependency
+
+```bash
+zig fetch --save git+https://github.com/sajonaro/dbc.git
+```
+
 ## Building
 
 ```bash
