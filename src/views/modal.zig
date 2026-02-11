@@ -80,14 +80,71 @@ fn renderConfirm(ctx: view.RenderContext, win: *ui.Window, confirm: modal_model.
 }
 
 fn renderInput(ctx: view.RenderContext, win: *ui.Window, input: modal_model.InputModal) void {
-    // TODO: Implement input modal rendering
-    _ = ctx;
-    _ = win;
-    _ = input;
+    const th = ctx.theme;
+
+    // Calculate modal size (centered, 60% width)
+    const modal_w = @min(60, win.rect.w * 60 / 100);
+    const modal_h = 8;
+    const modal_x = (win.rect.w - modal_w) / 2;
+    const modal_y = (win.rect.h - modal_h) / 2;
+
+    // Draw modal background
+    var y: usize = 0;
+    while (y < modal_h) : (y += 1) {
+        var x: usize = 0;
+        while (x < modal_w) : (x += 1) {
+            win.drawChar(modal_y + y, modal_x + x, ' ', th.modal_bg) catch {};
+        }
+    }
+
+    // Draw border
+    win.drawChar(modal_y, modal_x, '+', th.modal_border) catch {};
+    win.drawChar(modal_y, modal_x + modal_w - 1, '+', th.modal_border) catch {};
+    var x: usize = 1;
+    while (x < modal_w - 1) : (x += 1) {
+        win.drawChar(modal_y, modal_x + x, '-', th.modal_border) catch {};
+    }
+
+    // Title
+    const title_max = @min(input.title.len, modal_w - 4);
+    win.drawText(modal_y, modal_x + 2, input.title[0..title_max], th.modal_border) catch {};
+
+    // Prompt
+    const prompt_y = modal_y + 2;
+    win.drawText(prompt_y, modal_x + 2, input.prompt, th.modal_bg) catch {};
+
+    // Input field
+    const input_y = modal_y + 4;
+    const input_x = modal_x + 2;
+    const input_w = modal_w - 4;
+
+    // Draw input background
+    var ix: usize = 0;
+    while (ix < input_w) : (ix += 1) {
+        win.drawChar(input_y, input_x + ix, ' ', th.input_focused) catch {};
+    }
+
+    // Draw input text
+    const display_text = if (input.buffer.items.len > input_w - 2)
+        input.buffer.items[input.buffer.items.len - input_w + 2 ..]
+    else
+        input.buffer.items;
+    win.drawText(input_y, input_x + 1, display_text, th.input_focused) catch {};
+
+    // Show cursor at input position
+    const cursor_pos = if (input.buffer.items.len > input_w - 2)
+        input_w - 2
+    else
+        input.cursor;
+    win.move(input_y, input_x + 1 + cursor_pos);
+    win.setCursor(true);
+
+    // Instructions
+    const help_y = modal_y + modal_h - 2;
+    win.drawText(help_y, modal_x + 2, "Enter: Save  Esc: Cancel", th.modal_bg) catch {};
 }
 
 fn renderError(ctx: view.RenderContext, win: *ui.Window, err: modal_model.ErrorModal) void {
-    // TODO: Implement error modal rendering
     _ = ctx;
     _ = win;
     _ = err;

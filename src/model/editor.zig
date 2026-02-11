@@ -7,6 +7,9 @@ pub const EditorState = struct {
     scroll: Position,
     selection: ?Selection,
 
+    // File tracking
+    current_file: ?[]const u8,
+
     // State flags
     modified: bool,
     executing: bool,

@@ -46,6 +46,12 @@ fn handleGlobalHotkeys(state: *model.State, key_event: events.KeyEvent) bool {
         return true;
     }
 
+    // Ctrl+S - save file
+    if (key_event.modifiers.ctrl and key_event.key == .char and key_event.key.char == 's') {
+        handleSave(state);
+        return true;
+    }
+
     // Tab or Ctrl+I - cycle focus (Ctrl+I works better in WSL/some terminals)
     const is_tab = key_event.key == .tab;
     const is_ctrl_i = key_event.modifiers.ctrl and key_event.key == .char and key_event.key.char == 'i';
@@ -64,7 +70,7 @@ fn handleGlobalHotkeys(state: *model.State, key_event: events.KeyEvent) bool {
     const is_help = key_event.key == .char and key_event.key.char == '?';
 
     if (is_f1 or is_help) {
-        state.status = .{ .idle = "Help: Tab=Switch, F5/Ctrl+E=Run, ?=Help, Ctrl+Q=Quit" };
+        state.status = .{ .idle = "Help: Tab=Switch, F5/Ctrl+E=Run, Ctrl+S=Save, ?=Help, Ctrl+Q=Quit" };
         return true;
     }
 
@@ -210,6 +216,98 @@ fn processMetadataLoaded(state: *model.State, result: events.MetadataLoadedEvent
 fn processTick(state: *model.State) void {
     // TODO: Handle periodic tasks (animations, timeouts, etc.)
     _ = state;
+}
+
+fn handleSave(state: *model.State) void {
+    if (state.editor.current_file) |file_path| {
+        // File already has a path, save directly
+        saveFile(state, file_path);
+    } else {
+        // New file, show save-as modal
+        showSaveAsModal(state);
+    }
+}
+
+fn saveFile(state: *model.State, file_path: []const u8) void {
+    const allocator = state.editor.allocator;
+
+    // Write buffer to file
+    const file = std.fs.cwd().createFile(file_path, .{}) catch |err| {
+        const err_msg = std.fmt.allocPrint(allocator, "Failed to save file: {}", .{err}) catch "Failed to save file";
+        state.status = .{ .err = .{
+            .message = err_msg,
+            .details = null,
+            .source = .filesystem,
+        } };
+        return;
+    };
+    defer file.close();
+
+    file.writeAll(state.editor.buffer.items) catch |err| {
+        const err_msg = std.fmt.allocPrint(allocator, "Failed to write file: {}", .{err}) catch "Failed to write file";
+        state.status = .{ .err = .{
+            .message = err_msg,
+            .details = null,
+            .source = .filesystem,
+        } };
+        return;
+    };
+
+    // Update editor state
+    state.editor.modified = false;
+
+    // If this was a new file, store the path
+    if (state.editor.current_file == null) {
+        state.editor.current_file = allocator.dupe(u8, file_path) catch null;
+    }
+
+    state.status = .{ .idle = "File saved successfully" };
+}
+
+fn showSaveAsModal(state: *model.State) void {
+    const allocator = state.editor.allocator;
+
+    // Generate default filename with timestamp
+    const timestamp = std.time.timestamp();
+    const default_name = std.fmt.allocPrint(allocator, "query_{d}.sql", .{timestamp}) catch "query.sql";
+    defer {
+        // Only free if it was allocated (not the fallback string literal)
+        if (!std.mem.eql(u8, default_name, "query.sql")) {
+            allocator.free(default_name);
+        }
+    }
+
+    var buffer: std.ArrayList(u8) = .empty;
+    buffer.appendSlice(allocator, default_name) catch {};
+
+    state.modal = .{ .input = .{
+        .title = "Save As",
+        .prompt = "Filename:",
+        .buffer = buffer,
+        .cursor = buffer.items.len,
+        .on_submit = onSaveAsSubmit,
+    } };
+}
+
+fn onSaveAsSubmit(state: *model.State, filename: []const u8) void {
+    const allocator = state.editor.allocator;
+
+    if (filename.len == 0) {
+        state.status = .{ .err = .{
+            .message = "Filename cannot be empty",
+            .details = null,
+            .source = .filesystem,
+        } };
+        return;
+    }
+
+    saveFile(state, filename);
+
+    // Clean up modal buffer
+    if (state.modal == .input) {
+        state.modal.input.buffer.deinit(allocator);
+    }
+    state.modal = .none;
 }
 
 fn executeQuery(state: *model.State) void {

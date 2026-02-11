@@ -53,6 +53,8 @@ pub fn main() !void {
     var initial_query: ?[]const u8 = null;
     defer if (initial_query) |query| allocator.free(query);
 
+    var opened_file_path: ?[]const u8 = null;
+
     if (args.len > 1) {
         const file_path = args[1];
         // Try to read the file
@@ -66,6 +68,9 @@ pub fn main() !void {
         const buffer = try allocator.alloc(u8, file_size);
         _ = try file.readAll(buffer);
         initial_query = buffer;
+
+        // Store the file path for the editor
+        opened_file_path = try allocator.dupe(u8, file_path);
     }
 
     // Initialize async queue
@@ -83,18 +88,6 @@ pub fn main() !void {
         .children_loaded = true,
     });
 
-    // Initialize editor buffer with loaded file content if provided
-    var editor_buffer: model.Buffer = .empty;
-    if (initial_query) |query| {
-        var lines = std.ArrayList([]const u8).init(allocator);
-        var line_iter = std.mem.splitScalar(u8, query, '\n');
-        while (line_iter.next()) |line| {
-            const line_copy = try allocator.dupe(u8, line);
-            try lines.append(line_copy);
-        }
-        editor_buffer = .{ .lines = try lines.toOwnedSlice() };
-    }
-
     // Initialize state
     var state = model.State{
         .connections = .empty,
@@ -108,10 +101,11 @@ pub fn main() !void {
         },
         .editor = .{
             .allocator = allocator,
-            .buffer = editor_buffer,
+            .buffer = .empty,
             .cursor = .{ .row = 0, .col = 0 },
             .scroll = .{ .row = 0, .col = 0 },
             .selection = null,
+            .current_file = opened_file_path,
             .modified = false,
             .executing = false,
             .undo_stack = .empty,
@@ -163,6 +157,16 @@ pub fn main() !void {
     defer state.editor.undo_stack.deinit(allocator);
     defer state.editor.redo_stack.deinit(allocator);
 
+    // Free current file path if allocated
+    defer if (state.editor.current_file) |file_path| {
+        allocator.free(file_path);
+    };
+
+    // Load initial query file content into editor buffer if provided
+    if (initial_query) |query| {
+        try state.editor.buffer.appendSlice(allocator, query);
+    }
+
     // Free query results on exit
     defer {
         // Free result columns (including their owned strings)
@@ -199,22 +203,10 @@ pub fn main() !void {
     }
 
     // Free status error messages on exit
-    defer {
-        if (state.status == .err) {
-            const err_msg = state.status.err.message;
-            // Only free if it's not a string literal
-            if (!std.mem.eql(u8, err_msg, "Failed to build connection string") and
-                !std.mem.eql(u8, err_msg, "Failed to allocate connection") and
-                !std.mem.eql(u8, err_msg, "Failed to load database metadata") and
-                !std.mem.eql(u8, err_msg, "Failed to load items"))
-            {
-                allocator.free(err_msg);
-            }
-            if (state.status.err.details) |details| {
-                allocator.free(details);
-            }
-        }
-    }
+    // Note: We don't free error messages because they may be string literals
+    // from catch expressions, and trying to free them causes crashes.
+    // This is a known limitation that could be improved by using a separate
+    // allocator for status messages or tracking which messages are allocated.
 
     // Initialize UI (ncurses)
     var screen = ui.Screen.init() catch |err| {

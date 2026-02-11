@@ -13,13 +13,21 @@ pub fn handleKey(state: *model.State, key_event: events.KeyEvent) void {
 }
 
 fn handleConfirmModal(state: *model.State, key_event: events.KeyEvent) void {
+    if (state.modal != .confirm) return;
+
+    const confirm = &state.modal.confirm;
+
     switch (key_event.key) {
         .enter => {
-            // TODO: Call confirm callback
+            // Call confirm callback
+            confirm.on_confirm(state);
             state.modal = .none;
         },
         .escape => {
-            // TODO: Call cancel callback if exists
+            // Call cancel callback if exists
+            if (confirm.on_cancel) |on_cancel| {
+                on_cancel(state);
+            }
             state.modal = .none;
         },
         else => {},
@@ -27,14 +35,49 @@ fn handleConfirmModal(state: *model.State, key_event: events.KeyEvent) void {
 }
 
 fn handleInputModal(state: *model.State, key_event: events.KeyEvent) void {
-    // TODO: Implement input modal key handling
+    if (state.modal != .input) return;
+
+    var input_modal = &state.modal.input;
+    const allocator = state.editor.allocator;
+
     switch (key_event.key) {
         .enter => {
-            // TODO: Call submit callback with input text
-            state.modal = .none;
+            // Call submit callback with input text
+            input_modal.on_submit(state, input_modal.buffer.items);
+            // Don't set modal to .none here - let the callback handle it
         },
         .escape => {
+            // Clean up buffer
+            input_modal.buffer.deinit(allocator);
             state.modal = .none;
+        },
+        .backspace => {
+            // Delete character
+            if (input_modal.buffer.items.len > 0 and input_modal.cursor > 0) {
+                _ = input_modal.buffer.orderedRemove(input_modal.cursor - 1);
+                input_modal.cursor -= 1;
+            }
+        },
+        .left => {
+            if (input_modal.cursor > 0) {
+                input_modal.cursor -= 1;
+            }
+        },
+        .right => {
+            if (input_modal.cursor < input_modal.buffer.items.len) {
+                input_modal.cursor += 1;
+            }
+        },
+        .home => {
+            input_modal.cursor = 0;
+        },
+        .end => {
+            input_modal.cursor = input_modal.buffer.items.len;
+        },
+        .char => |c| {
+            // Insert character at cursor position
+            input_modal.buffer.insert(allocator, input_modal.cursor, c) catch {};
+            input_modal.cursor += 1;
         },
         else => {},
     }
