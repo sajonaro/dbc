@@ -1,6 +1,6 @@
 # Database Commander (dbc)
 
-A terminal-based database management tool inspired by Midnight Commander, focused on database operations across multiple database engines.
+A terminal-based database management tool, focused on database operations across multiple database engines.
 
 ## Architecture
 
