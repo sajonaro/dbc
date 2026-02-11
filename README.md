@@ -184,6 +184,42 @@ zig fetch --save git+https://github.com/sajonaro/dbc.git
 zig build
 ```
 
+## Usage
+
+After installation, you can use `dbc` in the following ways:
+
+```bash
+# Start dbc with an empty editor
+dbc
+
+# Load a SQL file into the editor
+dbc query.sql
+
+# Display help message
+dbc --help
+dbc -h
+dbc ?
+```
+
+### Command-Line Options
+
+- **No arguments**: Starts dbc with an empty editor
+- **FILE**: Opens the specified SQL file in the editor panel
+- **--help, -h, ?**: Displays usage information and exits
+
+### Examples
+
+```bash
+# Start dbc and begin writing queries
+dbc
+
+# Open an existing query file
+dbc /path/to/my-query.sql
+
+# Get help
+dbc --help
+```
+
 ## Running
 
 ```bash

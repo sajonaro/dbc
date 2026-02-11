@@ -9,10 +9,64 @@ const async_mod = @import("async.zig");
 const theme = @import("theme.zig");
 const db = @import("db/db.zig");
 
+const usage =
+    \\Database Commander (dbc) - Terminal-based database management tool
+    \\
+    \\Usage:
+    \\  dbc [OPTIONS] [FILE]
+    \\
+    \\Options:
+    \\  -h, --help, ?    Show this help message and exit
+    \\
+    \\Arguments:
+    \\  FILE             Optional SQL file to load into the editor
+    \\
+    \\Examples:
+    \\  dbc              Start dbc with empty editor
+    \\  dbc query.sql    Start dbc and load query.sql into the editor
+    \\  dbc --help       Show this help message
+    \\
+;
+
 pub fn main() !void {
     var gpa = std.heap.GeneralPurposeAllocator(.{}){};
     defer _ = gpa.deinit();
     const allocator = gpa.allocator();
+
+    // Parse command-line arguments
+    const args = try std.process.argsAlloc(allocator);
+    defer std.process.argsFree(allocator, args);
+
+    // Handle help flags
+    if (args.len > 1) {
+        const arg = args[1];
+        if (std.mem.eql(u8, arg, "--help") or
+            std.mem.eql(u8, arg, "-h") or
+            std.mem.eql(u8, arg, "?"))
+        {
+            std.debug.print("{s}\n", .{usage});
+            return;
+        }
+    }
+
+    // Check if a file path was provided
+    var initial_query: ?[]const u8 = null;
+    defer if (initial_query) |query| allocator.free(query);
+
+    if (args.len > 1) {
+        const file_path = args[1];
+        // Try to read the file
+        const file = std.fs.cwd().openFile(file_path, .{}) catch |err| {
+            std.debug.print("Error opening file '{s}': {}\n", .{ file_path, err });
+            return err;
+        };
+        defer file.close();
+
+        const file_size = try file.getEndPos();
+        const buffer = try allocator.alloc(u8, file_size);
+        _ = try file.readAll(buffer);
+        initial_query = buffer;
+    }
 
     // Initialize async queue
     var async_queue = async_mod.AsyncQueue.init(allocator);
@@ -29,6 +83,18 @@ pub fn main() !void {
         .children_loaded = true,
     });
 
+    // Initialize editor buffer with loaded file content if provided
+    var editor_buffer: model.Buffer = .empty;
+    if (initial_query) |query| {
+        var lines = std.ArrayList([]const u8).init(allocator);
+        var line_iter = std.mem.splitScalar(u8, query, '\n');
+        while (line_iter.next()) |line| {
+            const line_copy = try allocator.dupe(u8, line);
+            try lines.append(line_copy);
+        }
+        editor_buffer = .{ .lines = try lines.toOwnedSlice() };
+    }
+
     // Initialize state
     var state = model.State{
         .connections = .empty,
@@ -42,7 +108,7 @@ pub fn main() !void {
         },
         .editor = .{
             .allocator = allocator,
-            .buffer = .empty,
+            .buffer = editor_buffer,
             .cursor = .{ .row = 0, .col = 0 },
             .scroll = .{ .row = 0, .col = 0 },
             .selection = null,
