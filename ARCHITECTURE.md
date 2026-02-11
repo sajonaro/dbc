@@ -82,6 +82,7 @@ A lightweight, keyboard-driven TUI for database exploration and management. Thin
 | `Home/End` | Line start / end |
 | `Ctrl+Z` | Undo |
 | `Ctrl+Y` | Redo |
+| `Ctrl+S` | Save file |
 | `Ctrl+A` | Select all |
 | `Ctrl+C` | Copy |
 | `Ctrl+V` | Paste |
@@ -97,7 +98,7 @@ A lightweight, keyboard-driven TUI for database exploration and management. Thin
 | `PgUp/PgDn` | Page up / down |
 | `Enter` | View cell |
 | `Ctrl+C` | Copy cell |
-| `Ctrl+E` | Export |
+| `Ctrl+E` | Export results |
 
 
 
