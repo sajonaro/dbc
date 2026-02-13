@@ -3,21 +3,32 @@ const view = @import("view.zig");
 const ui = @import("../ui/ui.zig");
 const modal_model = @import("../model/modal.zig");
 
+// Helper function to efficiently fill a rectangular area
+fn fillRect(win: *ui.Window, y: usize, x: usize, w: usize, h: usize, ch: u8, style: @import("../theme.zig").Style) void {
+    var row: usize = 0;
+    while (row < h) : (row += 1) {
+        var col: usize = 0;
+        while (col < w) : (col += 1) {
+            win.drawChar(y + row, x + col, ch, style) catch {};
+        }
+    }
+}
+
 pub fn render(ctx: view.RenderContext, win: *ui.Window) void {
     const modal = &ctx.state.modal;
     const th = ctx.theme;
 
-    // Draw overlay (dim effect)
+    // Only draw overlay if there's an actual modal to show
+    if (modal.* == .none) return;
+
+    // Draw overlay (dim effect) - use fillLine for better performance
     var y: usize = 0;
     while (y < win.rect.h) : (y += 1) {
-        var x: usize = 0;
-        while (x < win.rect.w) : (x += 1) {
-            win.drawChar(y, x, ' ', th.modal_overlay) catch {};
-        }
+        win.fillLine(y, ' ', th.modal_overlay) catch {};
     }
 
     switch (modal.*) {
-        .none => {},
+        .none => {}, // Already handled above, but kept for completeness
         .confirm => |confirm| renderConfirm(ctx, win, confirm),
         .input => |input| renderInput(ctx, win, input),
         .err => |err| renderError(ctx, win, err),
@@ -34,14 +45,8 @@ fn renderConfirm(ctx: view.RenderContext, win: *ui.Window, confirm: modal_model.
     const modal_x = (win.rect.w - modal_w) / 2;
     const modal_y = (win.rect.h - modal_h) / 2;
 
-    // Draw modal background directly on the window
-    var y: usize = 0;
-    while (y < modal_h) : (y += 1) {
-        var x: usize = 0;
-        while (x < modal_w) : (x += 1) {
-            win.drawChar(modal_y + y, modal_x + x, ' ', th.modal_bg) catch {};
-        }
-    }
+    // Draw modal background using helper function
+    fillRect(win, modal_y, modal_x, modal_w, modal_h, ' ', th.modal_bg);
 
     // Draw border (simplified - just corners and lines)
     // Top border
@@ -88,14 +93,8 @@ fn renderInput(ctx: view.RenderContext, win: *ui.Window, input: modal_model.Inpu
     const modal_x = (win.rect.w - modal_w) / 2;
     const modal_y = (win.rect.h - modal_h) / 2;
 
-    // Draw modal background
-    var y: usize = 0;
-    while (y < modal_h) : (y += 1) {
-        var x: usize = 0;
-        while (x < modal_w) : (x += 1) {
-            win.drawChar(modal_y + y, modal_x + x, ' ', th.modal_bg) catch {};
-        }
-    }
+    // Draw modal background using helper function
+    fillRect(win, modal_y, modal_x, modal_w, modal_h, ' ', th.modal_bg);
 
     // Draw border
     win.drawChar(modal_y, modal_x, '+', th.modal_border) catch {};
@@ -159,14 +158,8 @@ fn renderConnect(ctx: view.RenderContext, win: *ui.Window, connect: modal_model.
     const modal_x = (win.rect.w - modal_w) / 2;
     const modal_y = (win.rect.h - modal_h) / 2;
 
-    // Draw modal background
-    var y: usize = 0;
-    while (y < modal_h) : (y += 1) {
-        var x: usize = 0;
-        while (x < modal_w) : (x += 1) {
-            win.drawChar(modal_y + y, modal_x + x, ' ', th.modal_bg) catch {};
-        }
-    }
+    // Draw modal background using helper function
+    fillRect(win, modal_y, modal_x, modal_w, modal_h, ' ', th.modal_bg);
 
     // Draw border
     win.drawChar(modal_y, modal_x, '+', th.modal_border) catch {};

@@ -137,6 +137,7 @@ pub fn main() !void {
         .status = .{ .idle = "Welcome to Database Commander - Press F1 for help" },
         .running = true,
         .theme = &theme.dark,
+        .needs_redraw = true,
         .async_queue = &async_queue,
     };
     defer state.connections.deinit(allocator);
@@ -225,30 +226,41 @@ pub fn main() !void {
     };
     defer screen.deinit();
 
+    // Force initial refresh to ensure ncurses is ready
+    screen.refresh();
+
     // Main event loop
     while (state.running) {
-        // 1. Render current state (without clearing - windows will overwrite)
-        const ctx = main_view.RenderContext{
-            .state = &state,
-            .theme = state.theme,
-        };
-        main_view.render(ctx, &screen);
+        // 1. Render current state only if needed
+        if (state.needs_redraw) {
+            const ctx = main_view.RenderContext{
+                .state = &state,
+                .theme = state.theme,
+            };
+            main_view.render(ctx, &screen);
+            state.needs_redraw = false;
+        }
 
         // 2. Poll for input (with timeout for async)
         if (input.poll(333)) |event| {
             actions.processEvent(&state, event);
+            state.needs_redraw = true;
         }
 
         // 3. Check for terminal resize
         if (input.checkResize()) |resize_event| {
             actions.processEvent(&state, resize_event);
+            state.needs_redraw = true;
         }
 
         // 4. Process async results
         const async_events = async_queue.drain();
         defer allocator.free(async_events);
-        for (async_events) |event| {
-            actions.processEvent(&state, event);
+        if (async_events.len > 0) {
+            for (async_events) |event| {
+                actions.processEvent(&state, event);
+            }
+            state.needs_redraw = true;
         }
     }
 }

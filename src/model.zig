@@ -43,6 +43,7 @@ pub const State = struct {
     // App state
     running: bool,
     theme: *const Theme,
+    needs_redraw: bool,
 
     // Async
     async_queue: *AsyncQueue,
