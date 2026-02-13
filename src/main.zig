@@ -9,7 +9,7 @@ const async_mod = @import("async.zig");
 const theme = @import("theme.zig");
 const db = @import("db/db.zig");
 
-const version = "0.1.2";
+const version = "0.1.2.1";
 
 const usage =
     \\Database Commander (dbc) - Terminal-based database management tool
